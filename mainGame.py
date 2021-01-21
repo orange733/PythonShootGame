@@ -213,19 +213,37 @@ while 1:
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 player.moveRight()
 
+    f=open("./resources/score.txt",'r')
+    highscore=f.read()
+    f.close()
 
     font = pygame.font.Font(None, 48)
     text = font.render('Score: '+ str(score), True, (255, 0, 0))
     text2 = font.render('Press \'space\' to Restart', True, (255, 0, 0))
+    text3 = font.render('Highest Record : '+str(highscore), True, (255, 0, 0))
+    if int(score)>int(highscore):
+        highscore=score
+        f=open("./resources/score.txt",'w')
+        f.write(str(highscore))
+        f.close()
+        text3 = font.render('New Record!! : '+str(highscore), True, (255, 255, 0))
+
     text_rect = text.get_rect()
     text2_rect = text2.get_rect()
+    text3_rect = text2.get_rect()
     text_rect.centerx = screen.get_rect().centerx
-    text_rect.centery = screen.get_rect().centery + 24
+    text_rect.centery = screen.get_rect().centery + 200
+    
     text2_rect.centerx = screen.get_rect().centerx
     text2_rect.centery = screen.get_rect().centery +300
+
+    text3_rect.centerx = screen.get_rect().centerx
+    text3_rect.centery = screen.get_rect().centery +24
+
     screen.blit(game_over, (0, 0))
     screen.blit(text, text_rect)
     screen.blit(text2, text2_rect)
+    screen.blit(text3, text3_rect)
     
     while 1:
         a=pygame.key.get_pressed()
