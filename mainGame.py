@@ -20,21 +20,22 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('SHOOT')
 
 # 게임 음악로드
-bullet_sound = pygame.mixer.Sound('resources/sound/bullet.wav')
-enemy1_down_sound = pygame.mixer.Sound('resources/sound/enemy1_down.wav')
-game_over_sound = pygame.mixer.Sound('resources/sound/game_over.wav')
+bullet_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/bullet.wav')
+enemy1_down_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/enemy1_down.wav')
+game_over_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/game_over.wav')
 bullet_sound.set_volume(0.3)
 enemy1_down_sound.set_volume(0.3)
 game_over_sound.set_volume(0.3)
-pygame.mixer.music.load('resources/sound/game_music.wav')
+pygame.mixer.music.load('PythonShootGame/resources/sound/game_music.wav')
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.25)
 
 # 배경 이미지로드
-background = pygame.image.load('resources/image/background.png').convert()
-game_over = pygame.image.load('resources/image/gameover.png')
+background = pygame.image.load('PythonShootGame/resources/image/background.png').convert()
+background2 = pygame.image.load('PythonShootGame/resources/image/background2.png').convert()
+game_over = pygame.image.load('PythonShootGame/resources/image/gameover.png')
 
-filename = 'resources/image/shoot.png'
+filename = 'PythonShootGame/resources/image/shoot.png'
 plane_img = pygame.image.load(filename)
 
 while 1:
@@ -100,6 +101,8 @@ while 1:
     clock = pygame.time.Clock()
 
     running = True
+    kill=0
+    loss=0
 
     while running:
         # 컨트롤 게임의 최대 프레임 속도는 60입니다.
@@ -141,6 +144,7 @@ while 1:
                 break
             if enemy.rect.top > SCREEN_HEIGHT:
                 enemies1.remove(enemy)
+                loss+=1
 
         # 적중 한 적 항공기 오브젝트를 적군 항공기 그룹에 추가하여 파괴 애니메이션을 렌더링합니다.
         enemies1_down = pygame.sprite.groupcollide(enemies1, player.bullets, 1, 1)
@@ -149,7 +153,10 @@ while 1:
 
         # 배경 그리기
         screen.fill(0)
-        screen.blit(background, (0, 0))
+        if score>7000:
+            screen.blit(background2, (0, 0))
+        else:
+            screen.blit(background, (0, 0))
 
         # 플레이어 비행기 그리기
         if not player.is_hit:
@@ -170,6 +177,7 @@ while 1:
             if enemy_down.down_index > 7:
                 enemies_down.remove(enemy_down)
                 score += 1000
+                kill+=1
                 continue
             screen.blit(enemy_down.down_imgs[enemy_down.down_index // 2], enemy_down.rect)
             enemy_down.down_index += 1
@@ -177,6 +185,11 @@ while 1:
         # 총알과 적 항공기 그리기
         player.bullets.draw(screen)
         enemies1.draw(screen)
+
+        #kill lose 글자 띄우기
+        font=pygame.font.Font(None,20)
+        text=font.render("KILLED : {} LOSS : {}".format(kill,loss), True, (255, 0, 0))
+        screen.blit(text, (340,20))
 
         # 점수 추첨
         score_font = pygame.font.Font(None, 36)
@@ -212,6 +225,8 @@ while 1:
                 player.moveLeft()
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 player.moveRight()
+            if key_pressed[K_q]:
+                running=0
 
     f=open("./resources/score.txt",'r')
     highscore=f.read()
