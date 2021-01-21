@@ -136,6 +136,13 @@ while 1:
             if enemy.rect.top > SCREEN_HEIGHT:
                 enemies1.remove(enemy)
                 loss+=1
+                if loss>2: # 3개의 적이 지나가면 게임오버
+                    enemies_down.add(enemy)
+                    enemies1.remove(enemy)
+                    player.is_hit = True
+                    game_over_sound.play()
+                    break
+                   
 
         # 적중 한 적 항공기 오브젝트를 적군 항공기 그룹에 추가하여 파괴 애니메이션을 렌더링합니다.
         enemies1_down = pygame.sprite.groupcollide(enemies1, player.bullets, 1, 1)
