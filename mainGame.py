@@ -10,7 +10,6 @@ from sys import exit
 from pygame.locals import *
 from gameRole import *
 import random
-import threading
 
 # pylint: disable=no-member
 
@@ -20,22 +19,22 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('SHOOT')
 
 # 게임 음악로드
-bullet_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/bullet.wav')
-enemy1_down_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/enemy1_down.wav')
-game_over_sound = pygame.mixer.Sound('PythonShootGame/resources/sound/game_over.wav')
+bullet_sound = pygame.mixer.Sound('resources/sound/bullet.wav')
+enemy1_down_sound = pygame.mixer.Sound('resources/sound/enemy1_down.wav')
+game_over_sound = pygame.mixer.Sound('resources/sound/game_over.wav')
 bullet_sound.set_volume(0.3)
 enemy1_down_sound.set_volume(0.3)
 game_over_sound.set_volume(0.3)
-pygame.mixer.music.load('PythonShootGame/resources/sound/game_music.wav')
+pygame.mixer.music.load('resources/sound/game_music.wav')
 pygame.mixer.music.play(-1, 0.0)
 pygame.mixer.music.set_volume(0.25)
 
 # 배경 이미지로드
-background = pygame.image.load('PythonShootGame/resources/image/background.png').convert()
-background2 = pygame.image.load('PythonShootGame/resources/image/background2.png').convert()
-game_over = pygame.image.load('PythonShootGame/resources/image/gameover.png')
+background = pygame.image.load('resources/image/background.png').convert()
+background2 = pygame.image.load('resources/image/background2.png').convert()
+game_over = pygame.image.load('resources/image/gameover.png')
 
-filename = 'PythonShootGame/resources/image/shoot.png'
+filename = 'resources/image/shoot.png'
 plane_img = pygame.image.load(filename)
 
 while 1:
@@ -75,29 +74,21 @@ while 1:
 
     score = 0
 
-    chapter = 0
+    score1 = 0
+    chapter = 1
     bullet_speed = 20
     enemy_speed = 50
 
-    # 10초에 챕터가 오르고 속도가 변한다.
+    # 챕터가 오름에 따라 속도 조정
     def fun_a():
         global chapter
         global bullet_speed
         global enemy_speed
         
-        timer = threading.Timer(10,fun_a)
-        chapter += 1
-        bullet_speed -= 0.2
-        enemy_speed -= 1
-        timer.daemon=True
-        timer.start()
-
-        # 45단계 까지 가능
-        if chapter == 45:
-            timer.cancel()
-
-    fun_a()
-
+        if chapter < 45:
+            chapter += 1
+            bullet_speed -= 0.3
+            enemy_speed -= 1
     clock = pygame.time.Clock()
 
     running = True
@@ -177,10 +168,16 @@ while 1:
             if enemy_down.down_index > 7:
                 enemies_down.remove(enemy_down)
                 score += 1000
+                score1 += 1
                 kill+=1
                 continue
             screen.blit(enemy_down.down_imgs[enemy_down.down_index // 2], enemy_down.rect)
             enemy_down.down_index += 1
+
+        # 10000점 마다 챕터 증가
+        if score1 == 10:
+            fun_a()
+            score1 = 0
 
         # 총알과 적 항공기 그리기
         player.bullets.draw(screen)
